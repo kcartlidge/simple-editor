@@ -17,12 +17,12 @@
             <span class="separator"></span>
             <button onclick="formatText('strikethrough')" title="Strikethrough"><s>S</s></button>
             <span class="separator"></span>
-            <button onclick="formatText('foreColor', false, '#333')" title="Reset"><span class="color-button back-black">&nbsp;</span></button>
-            <button onclick="formatText('foreColor', false, '#ec5050')" title="Red"><span class="color-button back-red">&nbsp;</span></button>
-            <button onclick="formatText('foreColor', false, '#299921')" title="Green"><span class="color-button back-green">&nbsp;</span></button>
-            <button onclick="formatText('foreColor', false, '#3d6ee9')" title="Blue"><span class="color-button back-blue">&nbsp;</span></button>
-            <button onclick="formatText('foreColor', false, '#d3992e')" title="Orange"><span class="color-button back-orange">&nbsp;</span></button>
-            <button onclick="formatText('foreColor', false, '#800080')" title="Purple"><span class="color-button back-purple">&nbsp;</span></button>
+            <button onclick="formatText('foreColor', false, '#333')" title="Default Color"><span class="text-black">A</span></button>
+            <button onclick="formatText('foreColor', false, '#ec5050')" title="Red"><span class="text-red">A</span></button>
+            <button onclick="formatText('foreColor', false, '#299921')" title="Green"><span class="text-green">A</span></button>
+            <button onclick="formatText('foreColor', false, '#3d6ee9')" title="Blue"><span class="text-blue">A</span></button>
+            <button onclick="formatText('foreColor', false, '#d3992e')" title="Orange"><span class="text-orange">A</span></button>
+            <button onclick="formatText('foreColor', false, '#800080')" title="Purple"><span class="text-purple">A</span></button>
             <span class="separator"></span>
             <button onclick="formatText('removeFormat')" title="Clear Formatting">X</button>
             <span class="separator"></span>
@@ -37,13 +37,52 @@
             <button onclick="formatText('formatBlock', false, 'H2')" title="H2"><span class="small">H2</span></button>
             <button onclick="formatText('formatBlock', false, 'H3')" title="H3"><span class="small">H3</span></button>
             <span class="separator"></span>
+            <select id="font-family" onchange="setFont()">
+                <option value="">Font ...</option>
+                <option value="Arial">Arial</option>
+                <option value="Bookman">Bookman</option>
+                <option value="Comic Sans MS">Comic Sans MS</option>
+                <option value="Consolas">Consolas</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Courier">Courier</option>
+                <option value="Garamond">Garamond</option>
+                <option value="Geneva">Geneva</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Helvetica">Helvetica</option>
+                <option value="Impact">Impact</option>
+                <option value="Lucida Console">Lucida Console</option>
+                <option value="Lucida Sans Unicode">Lucida Sans Unicode</option>
+                <option value="Monaco">Monaco</option>
+                <option value="Palatino">Palatino</option>
+                <option value="PT Mono">PT Mono</option>
+                <option value="Tahoma">Tahoma</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Trebuchet MS">Trebuchet MS</option>
+                <option value="Verdana">Verdana</option>
+            </select>
+            <span class="separator"></span>
+            <select id="font-size" onchange="setFontSize()">
+                <option value="">Size</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+            </select>
+            <span class="separator"></span>
             <button onclick="formatText('undo')" title="Undo">&hookleftarrow;</button>
         </div>
         <div id="editor" autofocus contenteditable="true"></div>
     </div>
 
-    <div id="source-label">Source:</div>
-    <div id="source"></div>
+
+    <details>
+        <summary id="source-label">Source</summary>
+        <div id="source"></div>
+    </details>
+
     <script src="script.js"></script>
 </body>
 
