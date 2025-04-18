@@ -1,29 +1,50 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Simple Editor</title>
-        <link rel="stylesheet" href="style.css">
-    </head>
-    <body>
-        <h1>Simple Editor</h1>
 
+<head>
+    <title>Simple Editor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>Simple Editor</h1>
+
+    <div id="editor-container">
         <div id="toolbar">
             <button onclick="formatText('bold')" title="Bold"><b>B</b></button>
             <button onclick="formatText('italic')" title="Italic"><i>I</i></button>
             <button onclick="formatText('underline')" title="Underline"><u>U</u></button>
             <span class="separator"></span>
-            <button onclick="formatText('undo')" title="Undo">&hookleftarrow;</button>
+            <button onclick="formatText('strikethrough')" title="Strikethrough"><s>S</s></button>
             <span class="separator"></span>
-            <button onclick="formatText('justifyLeft')" title="Left">L</button>
+            <button onclick="formatText('foreColor', false, '#333')" title="Reset"><span class="color-button back-black">&nbsp;</span></button>
+            <button onclick="formatText('foreColor', false, '#ec5050')" title="Red"><span class="color-button back-red">&nbsp;</span></button>
+            <button onclick="formatText('foreColor', false, '#299921')" title="Green"><span class="color-button back-green">&nbsp;</span></button>
+            <button onclick="formatText('foreColor', false, '#3d6ee9')" title="Blue"><span class="color-button back-blue">&nbsp;</span></button>
+            <button onclick="formatText('foreColor', false, '#d3992e')" title="Orange"><span class="color-button back-orange">&nbsp;</span></button>
+            <button onclick="formatText('foreColor', false, '#800080')" title="Purple"><span class="color-button back-purple">&nbsp;</span></button>
+            <span class="separator"></span>
+            <button onclick="formatText('removeFormat')" title="Clear Formatting">X</button>
+            <span class="separator"></span>
+            <button onclick="formatText('justifyLeft')" title="Left">&lt;</button>
             <button onclick="formatText('justifyCenter')" title="Center">C</button>
-            <button onclick="formatText('justifyRight')" title="Right">R</button>
-            <button onclick="formatText('justifyFull')" title="Full">J</button>
-          </div>
-
+            <button onclick="formatText('justifyRight')" title="Right">&gt;</button>
+            <span class="separator"></span>
+            <button onclick="formatText('insertHorizontalRule')" title="Line"><strong>-</strong></button>
+            <span class="separator"></span>
+            <button onclick="formatText('formatBlock', false, 'P')" title="Normal"><span class="small">P</span></button>
+            <button onclick="formatText('formatBlock', false, 'H1')" title="H1"><span class="small">H1</span></button>
+            <button onclick="formatText('formatBlock', false, 'H2')" title="H2"><span class="small">H2</span></button>
+            <button onclick="formatText('formatBlock', false, 'H3')" title="H3"><span class="small">H3</span></button>
+            <span class="separator"></span>
+            <button onclick="formatText('undo')" title="Undo">&hookleftarrow;</button>
+        </div>
         <div id="editor" autofocus contenteditable="true"></div>
+    </div>
 
-        <div id="source-label">Source:</div>
-        <div id="source"></div>
-        <script src="script.js"></script>
-    </body>
+    <div id="source-label">Source:</div>
+    <div id="source"></div>
+    <script src="script.js"></script>
+</body>
+
 </html>

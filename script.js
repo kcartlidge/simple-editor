@@ -3,8 +3,11 @@ const editor = document.getElementById('editor');
 const source = document.getElementById('source');
 
 // Function to format text based on the command
-function formatText(command) {
-    document.execCommand(command, false, null);
+// Value and color are optional (often used for foreColor command)
+function formatText(command, value, color) {
+    console.log(command, value, color);
+    editor.focus();
+    document.execCommand(command, value, color);
 }
 
 // Function to escape HTML and convert line breaks to br tags
@@ -19,21 +22,10 @@ function showSource(text) {
 // Function to update the preview
 function updatePreview() {
     source.innerHTML = showSource(editor.innerHTML);
-    // source.innerHTML = editor.innerHTML;
 }
 
 // Add sample Markdown text
-editor.innerHTML = `# Welcome to the Editor
-
-This is a sample text in **Markdown** format. You can use *italics* and ~~strikethrough~~ text.
-
-## Features
-
-- Real-time preview
-- Line break support
-- HTML escaping for security
-
-Feel free to edit this text and see the changes in the preview below!`.replace(/\n/g, "<br>");
+editor.innerHTML = `<h1>Welcome to the Editor</h1>This is a sample <font color="#299921">formatted</font> text. You can use <i>italics</i>, <b>bold</b>, and <strike>strikethrough</strike> text.<div><br><b>Features</b><br><hr>- Text <i>styling</i><br>- Line alignments<br>- <font color="#800080">Text</font> <font color="#ec5050">colours</font><br><hr><br><div>Simple to add, and simple to use!</div></div>`;
 
 // Initialize the output with the editor's initial content
 updatePreview();
