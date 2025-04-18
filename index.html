@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Simple Editor</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <h1>Simple Editor</h1>
+
+        <div id="toolbar">
+            <button onclick="formatText('bold')" title="Bold"><b>B</b></button>
+            <button onclick="formatText('italic')" title="Italic"><i>I</i></button>
+            <button onclick="formatText('underline')" title="Underline"><u>U</u></button>
+            <span class="separator"></span>
+            <button onclick="formatText('undo')" title="Undo">&hookleftarrow;</button>
+            <span class="separator"></span>
+            <button onclick="formatText('justifyLeft')" title="Left">L</button>
+            <button onclick="formatText('justifyCenter')" title="Center">C</button>
+            <button onclick="formatText('justifyRight')" title="Right">R</button>
+            <button onclick="formatText('justifyFull')" title="Full">J</button>
+          </div>
+
+        <div id="editor" autofocus contenteditable="true"></div>
+
+        <div id="source-label">Source:</div>
+        <div id="source"></div>
+        <script src="script.js"></script>
+    </body>
+</html>
