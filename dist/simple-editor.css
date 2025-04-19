@@ -1,0 +1,125 @@
+/* Simple Editor styles */
+
+.simple-editor-container {
+    margin-bottom: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 2px solid #777;
+    width: 100%;
+    height: 100%;
+}
+
+#simple-editor-toolbar {
+    flex-shrink: 0;
+    overflow-x: hidden;
+    display: flex;
+    gap: 0;
+    padding: 0;
+    border-bottom: 2px solid #777;
+    white-space: nowrap;
+}
+
+#simple-editor-toolbar button {
+    text-align: center;
+    vertical-align: middle;
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+    background: inherit;
+    color: #000;
+    border: 0;
+    cursor: pointer;
+}
+
+#simple-editor-toolbar button:hover {
+    background: #ddd;
+}
+
+#simple-editor-toolbar button .simple-editor-small {
+    font-size: 0.8rem;
+}
+
+#simple-editor-toolbar .simple-editor-text-black {
+    color: #000000;
+}
+
+#simple-editor-toolbar .simple-editor-text-red {
+    color: #ec5050;
+}
+
+#simple-editor-toolbar .simple-editor-text-green {
+    color: #299921;
+}
+
+#simple-editor-toolbar .simple-editor-text-blue {
+    color: #3d6ee9;
+}
+
+#simple-editor-toolbar .simple-editor-text-orange {
+    color: #d3992e;
+}
+
+#simple-editor-toolbar .simple-editor-text-purple {
+    color: #800080;
+}
+
+#simple-editor-toolbar .simple-editor-separator {
+    width: 0px;
+    border-left: 2px solid #333;
+}
+
+#simple-editor-toolbar select {
+    cursor: pointer;
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
+    background: inherit;
+    color: #000;
+    border: 0;
+}
+
+#simple-editor-toolbar select:hover {
+    background: #ddd;
+}
+
+#simple-editor, #simple-editor-toolbar button, #simple-editor-toolbar select {
+    font-family: Verdana, 'PT Mono', Monaco, Consolas, 'Courier New', Courier, monospace;
+}
+
+#simple-editor {
+    background: #fff;
+    overflow-y: scroll;
+    font-size: 1rem;
+    padding: 1em;
+    cursor: text;
+    line-height: 1.25;
+}
+
+#simple-editor:focus {
+    outline: none;
+}
+
+#simple-editor h1, #simple-editor h2, #simple-editor h3, #simple-editor h4, #simple-editor h5, #simple-editor h6 {
+    letter-spacing: inherit;
+    font-size: 1.5rem;
+    margin: 0.2em 0;
+}
+
+#simple-editor h2 {
+    font-size: 1.2rem;
+}
+
+#simple-editor h3 {
+    font-size: 1rem;
+}
+
+#simple-editor h4 {
+    font-size: 0.8rem;
+}
+
+#simple-editor h5 {
+    font-size: 0.6rem;
+}
+
+#simple-editor h6 {
+    font-size: 0.4rem;
+}

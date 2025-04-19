@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Simple Editor example 2 (live source)</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Pull in the simple editor styles -->
+    <link rel="stylesheet" href="dist/simple-editor.css">
+
+</head>
+
+<body>
+    <h1>Simple Editor example 2 (live source)</h1>
+
+    <!-- Placeholder for the editor control -->
+    <div id="my-editor"></div>
+
+    <!-- Example (optional) container to show the raw source -->
+    <p>Source:</p>
+    <div id="source"></div>
+
+    <!-- Load in simple editor  -->
+    <script src="dist/simple-editor.js"></script>
+    <script>
+        // Element to show the raw source (optional)
+        var sourceDiv = document.getElementById('source');
+
+        // Switch on the editor
+        document.addEventListener("DOMContentLoaded", function() {
+
+            // Activate, including an example (optional) callback to show the source
+            simpleEditor.attach(
+                'my-editor',
+                () => { sourceDiv.innerHTML = simpleEditor.getContent(); }
+            );
+
+            // Set some (optional) initial sample text
+            simpleEditor.setContent('<p>This is sample text.</p><p>Over two paragraphs.</p>');
+
+        });
+    </script>
+</body>
+
+</html>

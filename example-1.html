@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Simple Editor example 1</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Pull in the simple editor styles -->
+    <link rel="stylesheet" href="dist/simple-editor.css">
+
+</head>
+
+<body>
+    <h1>Simple Editor example 1</h1>
+
+    <!-- Placeholder for the editor control -->
+    <div id="my-editor"></div>
+
+    <!-- Load in simple editor  -->
+    <script src="dist/simple-editor.js"></script>
+    <script>
+        // Switch on the editor
+        document.addEventListener("DOMContentLoaded", function() {
+
+            // Activate
+            simpleEditor.attach('my-editor');
+
+            // Set some (optional) initial sample text
+            simpleEditor.setContent('<p>This is sample text.</p><p>Over two paragraphs.</p>');
+
+        });
+    </script>
+</body>
+
+</html>
