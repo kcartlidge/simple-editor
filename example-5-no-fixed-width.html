@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Simple Editor example 5 (no fixed width)</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Pull in the Simple Editor styles -->
+    <link rel="stylesheet" href="dist/simple-editor.css">
+
+</head>
+
+<body>
+    <h1>Simple Editor example 5 (no fixed width)</h1>
+
+    <!-- Placeholder for the editor control -->
+    <div id="my-editor" class="no-width"></div>
+
+    <!-- Load in Simple Editor  -->
+    <script src="dist/simple-editor.js"></script>
+    <script>
+        // Wait till the page is ready
+        document.addEventListener("DOMContentLoaded", function() {
+
+            // Convert the div to an editor
+            simpleEditor.attach('my-editor');
+
+            // (Optional) Set some initial sample text
+            simpleEditor.setContent(`<h1>Welcome to the Editor</h1><div>This is a sample <font color="#299921">formatted</font> text. You can use <i>italics</i>, <b>bold</b>, and <strike>strikethrough</strike> text.</div><div><br></div><h2>Features</h2><div><hr></div><div><span style="font-size: 1rem;">- Text <i>styling</i></span></div><div>- Line alignments</div><div>- <font color="#800080">Text</font> <font color="#ec5050">colours</font></div><div><hr></div><div><span style="font-size: 1rem;"><br></span></div><div><span style="font-size: 1rem;">Simple to add, and simple to use!</span></div>`);
+
+        });
+    </script>
+</body>
+
+</html>
