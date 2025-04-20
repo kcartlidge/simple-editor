@@ -5,7 +5,7 @@
     <title>Simple Editor example 2 (live source)</title>
     <link rel="stylesheet" href="style.css">
 
-    <!-- Pull in the simple editor styles -->
+    <!-- Pull in the Simple Editor styles -->
     <link rel="stylesheet" href="dist/simple-editor.css">
 
 </head>
@@ -20,23 +20,24 @@
     <p>Source:</p>
     <div id="source"></div>
 
-    <!-- Load in simple editor  -->
+    <!-- Load in Simple Editor  -->
     <script src="dist/simple-editor.js"></script>
     <script>
         // Element to show the raw source (optional)
         var sourceDiv = document.getElementById('source');
 
-        // Switch on the editor
+        // Wait till the page is ready
         document.addEventListener("DOMContentLoaded", function() {
 
-            // Activate, including an example (optional) callback to show the source
+            // Convert the div to an editor
+            // Includes an example optional callback to show the source
             simpleEditor.attach(
                 'my-editor',
                 () => { sourceDiv.innerHTML = simpleEditor.getContent(); }
             );
 
-            // Set some (optional) initial sample text
-            simpleEditor.setContent('<p>This is sample text.</p><p>Over two paragraphs.</p>');
+            // (Optional) Set some initial sample text
+            simpleEditor.setContent(`<h1 style="letter-spacing: normal;">Welcome to the Editor</h1><div>This is a sample&nbsp;<font color="#299921">formatted</font>&nbsp;text. You can use&nbsp;<i>italics</i>,&nbsp;<b>bold</b>, and&nbsp;<strike>strikethrough</strike>&nbsp;text.</div><div><br></div><h2 style="letter-spacing: normal;">Features</h2><div><hr></div><div><span style="font-size: 1rem;">- Text&nbsp;<i>styling</i></span></div><div>- Line alignments</div><div>-&nbsp;<font color="#800080">Text</font>&nbsp;<font color="#ec5050">colours</font></div><div>- Change&nbsp;<font size="5" face="iA Writer Duo S">fonts</font>&nbsp;too</div><div><hr></div><div><span style="font-size: 1rem;"><br></span></div><div><span style="font-size: 1rem;">Simple to add, and simple to use!</span></div>`);
 
         });
     </script>

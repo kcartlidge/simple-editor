@@ -1,7 +1,15 @@
 /* Simple Editor script */
 
+/*
+    MIT licence (see LICENSE.md)
+    Copyright 2025, K Cartlidge
+*/
+
 // Converts a div (by id) to a live editor with styling, fonts, and layout
 var simpleEditor = {
+
+    // Has Simple Editor been attached?
+    isAttached: false,
 
     // Any registered handler to receive changes
     changeHandler: null,
@@ -12,14 +20,88 @@ var simpleEditor = {
     // The editor element
     editor: null,
 
+    // Supported options
+    defaultOptions: {
+        allowStyling: true,
+        allowStrikethrough: true,
+        allowColors: true,
+        allowClear: true,
+        allowAlignment: true,
+        allowLines: true,
+        allowHeading1: true,
+        allowSubheadings: true,
+        allowFonts: true,
+        allowFontSizes: true,
+        allowUndo: true
+    },
+
+    // Supported fonts
+    fonts: [
+        'Andale Mono',
+        'Arial',
+        'Avenir Next',
+        'Baskerville',
+        'Bookman Old Style',
+        'Comic Sans MS',
+        'Consolas',
+        'Courier',
+        'Courier New',
+        'Courier Prime',
+        'Courier Screenplay',
+        'Cousine',
+        'Dark Courier',
+        'Futura',
+        'Garamond',
+        'Geneva',
+        'Georgia',
+        'Helvetica',
+        'Helvetica Neue',
+        'iA Writer Duo S',
+        'IBM Plex Mono',
+        'Impact',
+        'Lato',
+        'Lucida Console',
+        'Lucida Grande',
+        'Lucida Sans Unicode',
+        'Menlo',
+        'Monaco',
+        'Monospace',
+        'Montserrat',
+        'Open Sans',
+        'Optima',
+        'Palatino',
+        'PT Mono',
+        'PT Sans',
+        'PT Serif',
+        'Sans-Serif',
+        'Serif',
+        'Tahoma',
+        'Times New Roman',
+        'Trebuchet MS',
+        'Verdana'
+    ],
+
     // Convert a div (by id) to a live editor
     // Optionally provide a handler that will be called when content changes
-    attach: function (editorId, changeHandler) {
+    // Pass null if there's no handler but you want to override any options
+    // For the options, any not provided use the value in 'defaultOptions'
+    attach: function (editorId, changeHandler, options = {}) {
+
+        // Don't allow multiple attachment calls
+        if (simpleEditor.isAttached) {
+            throw new Error("Cannot attach Simple Editor more than once.");
+        }
+        simpleEditor.isAttached = true;
+
+        // Basic sanity check
         simpleEditor.container = document.getElementById(editorId);
         if (simpleEditor.container == null) {
-            throw new Error("Cannot attach simple editor to the given editorId.");            
+            throw new Error("Cannot attach Simple Editor to the given editorId.");
         }
         simpleEditor.container.className = (simpleEditor.container.className + ' simple-editor-container').trim();
+
+        // Merge in the default options
+        options = options ? Object.assign({}, simpleEditor.defaultOptions, options) : simpleEditor.defaultOptions;
 
         // Create the toolbar
         simpleEditor.toolbar = document.createElement('div');
@@ -27,9 +109,11 @@ var simpleEditor = {
         simpleEditor.container.appendChild(simpleEditor.toolbar);
 
         // Helper function to add a button, label, and optional class
-        function addButton(idSuffix, innerHTML, classNameSuffix = '') {
+        function addButton(idSuffix, title, innerHTML, classNameSuffix = '') {
             var newButton = document.createElement('button');
             newButton.setAttribute('id', 'simple-editor-' + idSuffix);
+            newButton.setAttribute('alt', title);
+            newButton.setAttribute('title', title);
             newButton.innerHTML = innerHTML;
             if (classNameSuffix) {
                 newButton.className = 'simple-editor-' + classNameSuffix;
@@ -38,10 +122,12 @@ var simpleEditor = {
         }
 
         // Helper function to add a dropdown button and options
-        function addDropdownButton(idSuffix, options = []) {
+        function addDropdownButton(idSuffix, title, options = []) {
             var newSelect = document.createElement('select');
             newSelect.setAttribute('id', 'simple-editor-' + idSuffix);
-            for(var i = 0; i < options.length; i++) {
+            newSelect.setAttribute('alt', title);
+            newSelect.setAttribute('title', title);
+            for (var i = 0; i < options.length; i++) {
                 var newOption = document.createElement('option');
                 newOption.textContent = options[i];
                 newOption.value = (i == 0 ? '' : options[i]);
@@ -58,65 +144,134 @@ var simpleEditor = {
             simpleEditor.toolbar.appendChild(newSeparator);
         }
 
+        // Function to format text based on the command
+        // Value and color are optional (often used for foreColor command)
+        function formatText(command, value, color) {
+            simpleEditor.editor.focus();
+            document.execCommand(command, value, color);
+            return false;
+        }
+
+        // Function to set the font family
+        function setFont() {
+            var dropdown = document.getElementById('simple-editor-font-name');
+            var fontName = dropdown.value;
+            dropdown.value = '';
+            formatText('fontName', false, fontName);
+        }
+
+        // Function to set the font size
+        function setFontSize() {
+            const dropdown = document.getElementById('simple-editor-font-size');
+            const fontSize = dropdown.value;
+            dropdown.value = '';
+            formatText('fontSize', false, fontSize);
+        }
+
+        // Function to remove fonts that should not be shown
+        function removeUnavailableFonts(fonts) {
+            var parent = simpleEditor.container;
+            var newFontList = [];
+
+            // Prepare a container to do font measurements in
+            // Include a long piece of large sample text
+            var container = document.createElement('span');
+            container.style = 'position:absolute;top:-1000px;width:auto;font-size:10em;';
+            container.innerHTML = 'm'.repeat(200);
+
+            // Compute the width of the sample text for the given font
+            function calculateWidth(fontName) {
+                container.style.fontFamily = fontName;
+                parent.appendChild(container);
+                width = container.clientWidth;
+                parent.removeChild(container);
+                return width;
+            }
+
+            // Get the widths of the fallback fonts for when the font isn't available
+            var w1 = calculateWidth('serif');
+            var w2 = calculateWidth('sans-serif');
+            var w3 = calculateWidth('monospace');
+
+            // Include all the fonts whose width doesn't match one of the fallbacks
+            // Also retain the dropdown title plus any included fallback
+            fonts.forEach(f => {
+                var font = f.toLowerCase();
+                if (font != 'serif' && font != 'sans-serif' && font != 'monospace') {
+                    if (calculateWidth("'" + font + "',serif") == w1) return;
+                    if (calculateWidth("'" + font + "',sans-serif") == w2) return;
+                    if (calculateWidth("'" + font + "',monospace") == w3) return;
+                }
+                newFontList.push(f);
+            });
+
+            // Now only contains available fonts
+            return newFontList;
+        }
+
+        // Set the list of fonts
+        var fonts = removeUnavailableFonts(simpleEditor.fonts);
+
         // Add the toolbar buttons
         // This *could* be merged in with the 'buttons' array below, but it's
-        // clearer keeping the two aspects separate - and the button handlers
-        // defined below will only be added if the button is created here
-        addButton('b', '<strong>B</strong>');
-        addButton('i', '<em>I</em>');
-        addButton('u', '<u>U</u>');
-        addSeparator();
-        addButton('sk', '<s>S</s>');
-        addSeparator();
-        addButton('color-default', 'A', 'text-black');
-        addButton('color-red', 'A', 'text-red');
-        addButton('color-green', 'A', 'text-green');
-        addButton('color-blue', 'A', 'text-blue');
-        addButton('color-orange', 'A', 'text-orange');
-        addButton('color-purple', 'A', 'text-purple');
-        addSeparator();
-        addButton('clear', 'X');
-        addSeparator();
-        addButton('left', '&lt;');
-        addButton('center', 'C');
-        addButton('right', '&gt;');
-        addSeparator();
-        addButton('hr', '-');
-        addSeparator();
-        addButton('p', 'P', 'small');
-        addButton('h1', 'H1', 'small');
-        addButton('h2', 'H2', 'small');
-        addButton('h3', 'H3', 'small');
-        addSeparator();
-        addDropdownButton('font-name', [
-            'Font',
-            'Arial',
-            'Bookman Old Style',
-            'Comic Sans MS',
-            'Consolas',
-            'Courier New',
-            'Courier',
-            'Dark Courier',
-            'Garamond',
-            'Geneva',
-            'Georgia',
-            'Helvetica',
-            'iA Writer Duo S',
-            'Impact',
-            'Lucida Console',
-            'Lucida Sans Unicode',
-            'Monaco',
-            'Palatino',
-            'PT Mono',
-            'Tahoma',
-            'Times New Roman',
-            'Trebuchet MS',
-            'Verdana'
-        ]);
-        addSeparator();
-        addDropdownButton('font-size', ['Size', '1', '2', '3', '4', '5', '6', '7']);
-        addSeparator();
-        addButton('undo', '&hookleftarrow;');
+        // clearer keeping the two aspects separate - the button handlers
+        // defined underneath will only be added if the button exists here
+        if (options.allowStyling) {
+            addButton('b', 'Bold', '<strong>B</strong>');
+            addButton('i', 'Italic', '<em>I</em>');
+            addButton('u', 'Underline', '<u>U</u>');
+            addSeparator();
+        }
+        if (options.allowStrikethrough) {
+            addButton('sk', 'Strikethrough', '<s>S</s>');
+            addSeparator();
+        }
+        if (options.allowColors) {
+            addButton('color-default', 'Default colour', 'A', 'text-black');
+            addButton('color-red', 'Red text', 'A', 'text-red');
+            addButton('color-green', 'Green text', 'A', 'text-green');
+            addButton('color-blue', 'Blue text', 'A', 'text-blue');
+            addButton('color-orange', 'Orange text', 'A', 'text-orange');
+            addButton('color-purple', 'Purple text', 'A', 'text-purple');
+            addSeparator();
+        }
+        if (options.allowClear) {
+            addButton('clear', 'Clear formatting', 'X');
+            addSeparator();
+        }
+        if (options.allowAlignment) {
+            addButton('left', 'Align left', '&lt;');
+            addButton('center', 'Align center', 'C');
+            addButton('right', 'Align right', '&gt;');
+            addSeparator();
+        }
+        if (options.allowLines) {
+            addButton('hr', 'Horizontal line', '-');
+            addSeparator();
+        }
+        if (options.allowHeading1 || options.allowSubheadings) {
+            addButton('p', 'Normal paragraph', 'P', 'small');
+            if (options.allowHeading1) {
+                addButton('h1', 'Heading 1', 'H1', 'small');
+            }
+            addButton('h2', 'Heading 2', 'H2', 'small');
+            addButton('h3', 'Heading 3', 'H3', 'small');
+            addSeparator();
+        }
+        if (options.allowFonts) {
+            var fontList = fonts;
+            fontList.splice(0, 0, 'Font')
+            addDropdownButton('font-name', 'Select font', fontList);
+            addSeparator();
+        }
+        if (options.allowFontSizes) {
+            addDropdownButton('font-size', 'Select font size', ['Size', '1', '2', '3', '4', '5', '6', '7']);
+            addSeparator();
+        }
+        if (options.allowUndo) {
+            addButton('undo', 'Undo last change', '&hookleftarrow;');
+            addSeparator();
+        }
 
         // Create the editor
         simpleEditor.editor = document.createElement('div');
@@ -127,34 +282,35 @@ var simpleEditor = {
 
         // Button definitions (id suffix, handler, optional event)
         // The event defaults to 'click' unless overridden
+        // Allows for buttons disabled by the options
         var buttons = [
-            ['b', () => { simpleEditor.formatText('bold') }],
-            ['i', () => { simpleEditor.formatText('italic') }],
-            ['u', () => { simpleEditor.formatText('underline') }],
-            ['sk', () => { simpleEditor.formatText('strikethrough') }],
+            ['b', () => { formatText('bold') }],
+            ['i', () => { formatText('italic') }],
+            ['u', () => { formatText('underline') }],
+            ['sk', () => { formatText('strikethrough') }],
 
-            ['left', () => { simpleEditor.formatText('justifyLeft') }],
-            ['center', () => { simpleEditor.formatText('justifyCenter') }],
-            ['right', () => { simpleEditor.formatText('justifyRight') }],
+            ['left', () => { formatText('justifyLeft') }],
+            ['center', () => { formatText('justifyCenter') }],
+            ['right', () => { formatText('justifyRight') }],
 
-            ['color-default', () => { simpleEditor.formatText('foreColor', false, '#333') }],
-            ['color-red', () => { simpleEditor.formatText('foreColor', false, '#ec5050') }],
-            ['color-green', () => { simpleEditor.formatText('foreColor', false, '#299921') }],
-            ['color-blue', () => { simpleEditor.formatText('foreColor', false, '#3d6ee9') }],
-            ['color-orange', () => { simpleEditor.formatText('foreColor', false, '#d3992e') }],
-            ['color-purple', () => { simpleEditor.formatText('foreColor', false, '#800080') }],
+            ['color-default', () => { formatText('foreColor', false, '#333') }],
+            ['color-red', () => { formatText('foreColor', false, '#ec5050') }],
+            ['color-green', () => { formatText('foreColor', false, '#299921') }],
+            ['color-blue', () => { formatText('foreColor', false, '#3d6ee9') }],
+            ['color-orange', () => { formatText('foreColor', false, '#d3992e') }],
+            ['color-purple', () => { formatText('foreColor', false, '#800080') }],
 
-            ['p', () => { simpleEditor.formatText('formatBlock', false, 'P') }],
-            ['h1', () => { simpleEditor.formatText('formatBlock', false, 'H1') }],
-            ['h2', () => { simpleEditor.formatText('formatBlock', false, 'H2') }],
-            ['h3', () => { simpleEditor.formatText('formatBlock', false, 'H3') }],
+            ['p', () => { formatText('formatBlock', false, 'P') }],
+            ['h1', () => { formatText('formatBlock', false, 'H1') }],
+            ['h2', () => { formatText('formatBlock', false, 'H2') }],
+            ['h3', () => { formatText('formatBlock', false, 'H3') }],
 
-            ['font-name', () => { simpleEditor.setFont() }, 'change'],
-            ['font-size', () => { simpleEditor.setFontSize() }, 'change'],
+            ['font-name', () => { setFont() }, 'change'],
+            ['font-size', () => { setFontSize() }, 'change'],
 
-            ['hr', () => { simpleEditor.formatText('insertHorizontalRule') }],
-            ['clear', () => { simpleEditor.formatText('removeFormat') }],
-            ['undo', () => { simpleEditor.formatText('undo') }],
+            ['hr', () => { formatText('insertHorizontalRule') }],
+            ['clear', () => { formatText('removeFormat') }],
+            ['undo', () => { formatText('undo') }],
         ];
 
         // Attach all the toolbar handlers
@@ -176,11 +332,18 @@ var simpleEditor = {
     },
 
     // Set the HTML content
-    setContent: function(innerHTML) {
-        if (innerHTML) {
+    setContent: function (innerHTML) {
+        // Cannot set content until the editor is attached
+        // It would still work, but we want a fully resolved stable state
+        if (!simpleEditor.isAttached) {
+            throw new Error("Cannot set content before Simple Editor is attached.");
+        }
+
+        // Only set the content if it has a string value
+        if (typeof(innerHTML) === 'string') {
             simpleEditor.editor.innerHTML = innerHTML.replace(/\n/g, "<br>");
             simpleEditor.content = simpleEditor.editor.innerHTML;
-            
+
             // If there's a change handler, advise it of the initial content being set
             if (simpleEditor.changeHandler != null) {
                 simpleEditor.changeHandler();
@@ -190,36 +353,18 @@ var simpleEditor = {
 
     // Get the HTML content
     // If it is unescaped then the HTML is raw (otherwise it's escaped for safety)
-    getContent: function(unescaped = false) {
+    getContent: function (unescaped = false) {
+        // Cannot get content until the editor is attached
+        // It would still work, but we want a fully resolved stable state
+        if (!simpleEditor.isAttached) {
+            throw new Error("Cannot get content before Simple Editor is attached.");
+        }
+
         if (unescaped) return simpleEditor.editor.innerHTML;
         else return simpleEditor.editor.innerHTML
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;");
-    },
-
-    // Function to format text based on the command
-    // Value and color are optional (often used for foreColor command)
-    formatText: function (command, value, color) {
-        simpleEditor.editor.focus();
-        document.execCommand(command, value, color);
-        return false;
-    },
-
-    // Function to set the font family
-    setFont: function () {
-        var dropdown = document.getElementById('simple-editor-font-name');
-        var fontName = dropdown.value;
-        dropdown.value = '';
-        simpleEditor.formatText('fontName', false, fontName);
-    },
-
-    // Function to set the font size
-    setFontSize: function () {
-        const dropdown = document.getElementById('simple-editor-font-size');
-        const fontSize = dropdown.value;
-        dropdown.value = '';
-        simpleEditor.formatText('fontSize', false, fontSize);
     },
 
 };

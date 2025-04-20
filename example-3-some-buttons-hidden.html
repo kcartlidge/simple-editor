@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Simple Editor example 3 (hidden buttons)</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Pull in the Simple Editor styles -->
+    <link rel="stylesheet" href="dist/simple-editor.css">
+
+</head>
+
+<body>
+    <h1>Simple Editor example 3 (hidden buttons)</h1>
+    <p>
+        We are hiding <strong>strikethrough</strong>, <strong>alignment</strong>,
+        <strong>H1</strong>, <strong>fonts</strong>, and <strong>undo</strong>.
+        Note that undo remains available via the usual keyboard shortcut.
+    </p>
+
+    <!-- Placeholder for the editor control -->
+    <div id="my-editor" class="smaller"></div>
+
+    <!-- Load in Simple Editor  -->
+    <script src="dist/simple-editor.js"></script>
+    <script>
+        // Wait till the page is ready
+        document.addEventListener("DOMContentLoaded", function() {
+
+            // Convert the div to an editor
+            // Includes the optional hiding of various features
+            simpleEditor.attach('my-editor', null, {
+                allowStrikethrough: false,
+                allowClear: false,
+                allowAlignment: false,
+                allowHeading1: false,
+                allowFonts: false,
+                allowUndo: false
+            });
+
+            // (Optional) Set some initial sample text
+            simpleEditor.setContent('<p>This is sample text.</p><p>Over two paragraphs.</p>');
+
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Simple Editor example 4 (custom fonts)</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Pull in the Simple Editor styles -->
+    <link rel="stylesheet" href="dist/simple-editor.css">
+
+</head>
+
+<body>
+    <h1>Simple Editor example 4 (custom fonts)</h1>
+
+    <!-- Placeholder for the editor control -->
+    <div id="my-editor"></div>
+
+    <!-- Load in Simple Editor  -->
+    <script src="dist/simple-editor.js"></script>
+    <script>
+        // Wait till the page is ready
+        document.addEventListener("DOMContentLoaded", function() {
+
+            // Convert the div to an editor
+            // Includes an optional override of the font list
+            simpleEditor.fonts = ['Arial', 'Sans-Serif', 'Tahoma', 'Verdana'];
+            simpleEditor.attach('my-editor');
+
+            // (Optional) Set some initial sample text
+            simpleEditor.setContent('<p>This is sample text.</p><p>Over two paragraphs.</p>');
+
+        });
+    </script>
+</body>
+
+</html>

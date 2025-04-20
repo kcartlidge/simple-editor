@@ -98,10 +98,14 @@
     outline: none;
 }
 
-#simple-editor h1, #simple-editor h2, #simple-editor h3, #simple-editor h4, #simple-editor h5, #simple-editor h6 {
+#simple-editor p, #simple-editor h1, #simple-editor h2, #simple-editor h3, #simple-editor h4, #simple-editor h5, #simple-editor h6 {
     letter-spacing: inherit;
     font-size: 1.5rem;
-    margin: 0.2em 0;
+    margin: 1rem 0 0.5rem 0;
+}
+
+#simple-editor p {
+    font-size: 1rem;
 }
 
 #simple-editor h2 {
