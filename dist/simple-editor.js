@@ -6,13 +6,13 @@
 */
 
 // Converts a div (by id) to a live editor with styling, fonts, and layout
-var simpleEditor = {
+const simpleEditor = {
 
     // Has Simple Editor been attached?
     isAttached: false,
 
-    // Any registered handler to receive changes
-    changeHandler: null,
+    // Any registered handlers to receive changes
+    changeHandlers: [],
 
     // The editor's container element
     container: null,
@@ -30,6 +30,9 @@ var simpleEditor = {
         allowLines: true,
         allowHeading1: true,
         allowSubheadings: true,
+        allowBlockquotes: true,
+        allowUnorderedLists: true,
+        allowOrderedLists: true,
         allowFonts: true,
         allowFontSizes: true,
         allowUndo: true
@@ -85,7 +88,7 @@ var simpleEditor = {
     // Optionally provide a handler that will be called when content changes
     // Pass null if there's no handler but you want to override any options
     // For the options, any not provided use the value in 'defaultOptions'
-    attach: function (editorId, changeHandler, options = {}) {
+    attach: function (editorId, options = {}) {
 
         // Don't allow multiple attachment calls
         if (simpleEditor.isAttached) {
@@ -110,7 +113,7 @@ var simpleEditor = {
 
         // Helper function to add a button, label, and optional class
         function addButton(idSuffix, title, innerHTML, classNameSuffix = '') {
-            var newButton = document.createElement('button');
+            const newButton = document.createElement('button');
             newButton.setAttribute('id', 'simple-editor-' + idSuffix);
             newButton.setAttribute('alt', title);
             newButton.setAttribute('title', title);
@@ -123,14 +126,14 @@ var simpleEditor = {
 
         // Helper function to add a dropdown button and options
         function addDropdownButton(idSuffix, title, options = []) {
-            var newSelect = document.createElement('select');
+            const newSelect = document.createElement('select');
             newSelect.setAttribute('id', 'simple-editor-' + idSuffix);
             newSelect.setAttribute('alt', title);
             newSelect.setAttribute('title', title);
-            for (var i = 0; i < options.length; i++) {
-                var newOption = document.createElement('option');
+            for (let i = 0; i < options.length; i++) {
+                const newOption = document.createElement('option');
                 newOption.textContent = options[i];
-                newOption.value = (i == 0 ? '' : options[i]);
+                newOption.value = (i === 0 ? '' : options[i]);
                 newSelect.appendChild(newOption);
             }
             newSelect.selectedIndex = 0;
@@ -139,7 +142,7 @@ var simpleEditor = {
 
         // Helper function to add a button separator
         function addSeparator() {
-            var newSeparator = document.createElement('span');
+            const newSeparator = document.createElement('span');
             newSeparator.className = 'simple-editor-separator';
             simpleEditor.toolbar.appendChild(newSeparator);
         }
@@ -154,8 +157,8 @@ var simpleEditor = {
 
         // Function to set the font family
         function setFont() {
-            var dropdown = document.getElementById('simple-editor-font-name');
-            var fontName = dropdown.value;
+            const dropdown = document.getElementById('simple-editor-font-name');
+            const fontName = dropdown.value;
             dropdown.value = '';
             formatText('fontName', false, fontName);
         }
@@ -170,37 +173,37 @@ var simpleEditor = {
 
         // Function to remove fonts that should not be shown
         function removeUnavailableFonts(fonts) {
-            var parent = simpleEditor.container;
-            var newFontList = [];
+            const parent = simpleEditor.container;
+            const newFontList = [];
 
             // Prepare a container to do font measurements in
             // Include a long piece of large sample text
-            var container = document.createElement('span');
-            container.style = 'position:absolute;top:-1000px;width:auto;font-size:10em;';
+            const container = document.createElement('span');
+            container.style.cssText = 'position:absolute;top:-1000px;width:auto;font-size:10em;';
             container.innerHTML = 'm'.repeat(200);
 
             // Compute the width of the sample text for the given font
             function calculateWidth(fontName) {
                 container.style.fontFamily = fontName;
                 parent.appendChild(container);
-                width = container.clientWidth;
+                const width = container.clientWidth;
                 parent.removeChild(container);
                 return width;
             }
 
             // Get the widths of the fallback fonts for when the font isn't available
-            var w1 = calculateWidth('serif');
-            var w2 = calculateWidth('sans-serif');
-            var w3 = calculateWidth('monospace');
+            const w1 = calculateWidth('serif');
+            const w2 = calculateWidth('sans-serif');
+            const w3 = calculateWidth('monospace');
 
             // Include all the fonts whose width doesn't match one of the fallbacks
             // Also retain the dropdown title plus any included fallback
             fonts.forEach(f => {
-                var font = f.toLowerCase();
-                if (font != 'serif' && font != 'sans-serif' && font != 'monospace') {
-                    if (calculateWidth("'" + font + "',serif") == w1) return;
-                    if (calculateWidth("'" + font + "',sans-serif") == w2) return;
-                    if (calculateWidth("'" + font + "',monospace") == w3) return;
+                const font = f.toLowerCase();
+                if (font !== 'serif' && font !== 'sans-serif' && font !== 'monospace') {
+                    if (calculateWidth("'" + font + "',serif") === w1) return;
+                    if (calculateWidth("'" + font + "',sans-serif") === w2) return;
+                    if (calculateWidth("'" + font + "',monospace") === w3) return;
                 }
                 newFontList.push(f);
             });
@@ -210,7 +213,7 @@ var simpleEditor = {
         }
 
         // Set the list of fonts
-        var fonts = removeUnavailableFonts(simpleEditor.fonts);
+        const fonts = removeUnavailableFonts(simpleEditor.fonts);
 
         // Add the toolbar buttons
         // This *could* be merged in with the 'buttons' array below, but it's
@@ -246,20 +249,32 @@ var simpleEditor = {
             addSeparator();
         }
         if (options.allowLines) {
-            addButton('hr', 'Horizontal line', '-');
+            addButton('hr', 'Horizontal line', '&mdash;');
             addSeparator();
         }
-        if (options.allowHeading1 || options.allowSubheadings) {
-            addButton('p', 'Normal paragraph', 'P', 'small');
+        if (options.allowHeading1 || options.allowSubheadings || options.allowBlockquotes) {
+            addButton('p', 'Normal paragraph', '&para;', 'small');
             if (options.allowHeading1) {
                 addButton('h1', 'Heading 1', 'H1', 'small');
             }
             addButton('h2', 'Heading 2', 'H2', 'small');
             addButton('h3', 'Heading 3', 'H3', 'small');
+            if (options.allowBlockquotes) {
+                addButton('bq', 'Blockquote', '"', 'large');
+            }
+            addSeparator();
+        }
+        if (options.allowUnorderedLists || options.allowOrderedLists) {
+            if (options.allowUnorderedLists) {
+                addButton('ul', 'Unordered list', '=');
+            }
+            if (options.allowOrderedLists) {
+                addButton('ol', 'Ordered list', '1.');
+            }
             addSeparator();
         }
         if (options.allowFonts) {
-            var fontList = fonts;
+            const fontList = fonts;
             fontList.splice(0, 0, 'Font')
             addDropdownButton('font-name', 'Select font', fontList);
             addSeparator();
@@ -283,7 +298,7 @@ var simpleEditor = {
         // Button definitions (id suffix, handler, optional event)
         // The event defaults to 'click' unless overridden
         // Allows for buttons disabled by the options
-        var buttons = [
+        const buttons = [
             ['b', () => { formatText('bold') }],
             ['i', () => { formatText('italic') }],
             ['u', () => { formatText('underline') }],
@@ -304,6 +319,10 @@ var simpleEditor = {
             ['h1', () => { formatText('formatBlock', false, 'H1') }],
             ['h2', () => { formatText('formatBlock', false, 'H2') }],
             ['h3', () => { formatText('formatBlock', false, 'H3') }],
+            ['bq', () => { formatText('formatBlock', false, 'BLOCKQUOTE') }],
+
+            ['ul', () => { formatText('insertUnorderedList') }],
+            ['ol', () => { formatText('insertOrderedList') }],
 
             ['font-name', () => { setFont() }, 'change'],
             ['font-size', () => { setFontSize() }, 'change'],
@@ -315,20 +334,29 @@ var simpleEditor = {
 
         // Attach all the toolbar handlers
         buttons.forEach(btn => {
-            var evt = btn.length > 2 ? btn[2] : 'click';
-            var btnElem = document.getElementById('simple-editor-' + btn[0]);
+            const evt = btn.length > 2 ? btn[2] : 'click';
+            const btnElem = document.getElementById('simple-editor-' + btn[0]);
             if (btnElem != null) {
                 btnElem.addEventListener(evt, btn[1]);
             }
         });
 
-        // If there's a change handler, advise it when there are content changes
-        if (changeHandler != null) {
-            simpleEditor.changeHandler = changeHandler;
+        // If there are change handlers, advise them when there are content changes
+        if (simpleEditor.changeHandlers.length > 0) {
             simpleEditor.editor.addEventListener('input', () => {
-                changeHandler();
+                simpleEditor.changeHandlers.forEach((handler) => handler());
             });
         }
+    },
+
+    // Register a change handler (camelcase)
+    onChange: function (handler) {
+        simpleEditor.changeHandlers.push(handler);
+    },
+
+    // Register a change handler (lowercase)
+    onchange: function (handler) {
+        simpleEditor.changeHandlers.push(handler);
     },
 
     // Set the HTML content
@@ -344,15 +372,15 @@ var simpleEditor = {
             simpleEditor.editor.innerHTML = innerHTML.replace(/\n/g, "<br>");
             simpleEditor.content = simpleEditor.editor.innerHTML;
 
-            // If there's a change handler, advise it of the initial content being set
-            if (simpleEditor.changeHandler != null) {
-                simpleEditor.changeHandler();
+            // If there are change handlers, advise them of the content being set
+            if (simpleEditor.changeHandlers.length > 0) {
+                simpleEditor.changeHandlers.forEach((handler) => handler());
             }
         }
     },
 
     // Get the HTML content
-    // If it is unescaped then the HTML is raw (otherwise it's escaped for safety)
+    // If it is unescaped, then the HTML is raw (otherwise it's escaped for safety)
     getContent: function (unescaped = false) {
         // Cannot get content until the editor is attached
         // It would still work, but we want a fully resolved stable state

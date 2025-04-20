@@ -27,6 +27,7 @@
     text-align: center;
     vertical-align: middle;
     font-size: 0.8rem;
+    line-height: 100%;
     padding: 0.3rem 0.6rem;
     background: #ffffff;
     border: 0;
@@ -39,8 +40,12 @@
     background: #ddd;
 }
 
-#simple-editor-toolbar button .simple-editor-small {
-    font-size: 0.8rem;
+#simple-editor-toolbar button.simple-editor-small {
+    font-size: 0.7rem;
+}
+
+#simple-editor-toolbar button.simple-editor-large {
+    font-size: 1.1rem;
 }
 
 #simple-editor-toolbar .simple-editor-text-black {
@@ -131,4 +136,10 @@
 
 #simple-editor h6 {
     font-size: 0.4rem;
+}
+
+#simple-editor blockquote {
+    border-left: solid 0.25rem #ddd;
+    margin-left: 1.5rem;
+    padding-left: 0.5rem;
 }
