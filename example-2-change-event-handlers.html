@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Simple Editor example 2 (live source)</title>
+    <title>Simple Editor example 2 (change event handlers)</title>
     <link rel="stylesheet" href="style.css">
 
     <!-- Pull in the Simple Editor styles -->
@@ -11,10 +11,14 @@
 </head>
 
 <body>
-    <h1>Simple Editor example 2 (live source)</h1>
+    <h1>Simple Editor example 2 (change event handlers)</h1>
+    <p>
+        This has <strong>instant</strong> handlers that show live source code and a console message.
+        It also has an <strong>interval</strong> handler that pops up an alert every 10 seconds if there has been a change made since the last alert.
+    </p>
 
     <!-- Placeholder for the editor control -->
-    <div id="my-editor"></div>
+    <div id="my-editor" class="short"></div>
 
     <!-- Example (optional) container to show the raw source -->
     <p>Source:</p>
@@ -24,15 +28,18 @@
     <script src="dist/simple-editor.js"></script>
     <script>
         // Element to show the raw source (optional)
-        var sourceDiv = document.getElementById('source');
+        const sourceDiv = document.getElementById('source');
 
         // Wait till the page is ready
         document.addEventListener("DOMContentLoaded", function() {
 
             // (Optional) Register some example callbacks to show the source
-            // Shows both casings for the method
             simpleEditor.onchange(() => { sourceDiv.innerHTML = simpleEditor.getContent(); });
-            simpleEditor.onChange(() => console.log('Changed!'));
+            simpleEditor.onchange(() => console.log('Changed!'));
+
+            // (Optional) Register an interval-based onchange
+            // Every 10 seconds if there have been unalerted changes, an alert is shown
+            simpleEditor.onchangeInterval(() => { alert('At least one change in the last 10s'); }, 10000);
 
             // Convert the div to an editor
             simpleEditor.attach('my-editor');

@@ -32,6 +32,10 @@ h1 {
     height: 15rem;
 }
 
+#my-editor.short {
+    height: 20rem;
+}
+
 #my-editor.no-width {
     width: inherit;
 }

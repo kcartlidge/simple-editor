@@ -1,4 +1,4 @@
-# Simple Editor v1.1.0
+# Simple Editor v1.2.0
 
 A rich text client side web editor in vanilla JavaScript and CSS.
 
@@ -16,6 +16,8 @@ A rich text client side web editor in vanilla JavaScript and CSS.
   - [Changing which fonts are available](#changing-which-fonts-are-available)
 - [Content](#content)
 - [Events](#events)
+  - [On change](#instant-notification-on-changes)
+  - [At intervals](#interval-based-notification-on-changes)
 - [License](#license)
 
 ## Features
@@ -30,12 +32,10 @@ A rich text client side web editor in vanilla JavaScript and CSS.
   - Default font choices can be overridden
   - Unavailable fonts silently suppressed
 - Optional change event callback
+  - Instantly when there are changes (e.g., for your own 'changed' flag)
+  - At an interval if there have been changes (e.g., to trigger a word count update)
 - Get content as either escaped or raw HTML
 - Options to select which features are shown
-
-Coming soon:
-
-- More change event handling options
 
 Handwritten. No AI.
 
@@ -43,14 +43,14 @@ Handwritten. No AI.
 
 ![screenshot](./screenshot.png)
 
-*(from example 2 as detailed below)*
+*(from example 1 as detailed below)*
 
 ## Examples
 
 There are five example HTML files in the repo:
 
 - [Example 1](./example-1.html) is a simple out-of-the-box experience
-- [Example 2](./example-2-showing-changing-source.html) has a change event handler that shows the HTML source for the text being edited
+- [Example 2](./example-2-change-event-handlers.html) has change event handlers showing both instant and interval-based activity
 - [Example 3](./example-3-some-buttons-hidden.html) shows how to pass options to hide chosen editor features
 - [Example 4](./example-4-custom-fonts.html) shows how to override the default list of fonts
 - [Example 5](./example-5-no-fixed-width.html) shows the behaviour without a fixed width editor
@@ -160,7 +160,7 @@ simpleEditor.attach('my-editor');
 
 ## Content
 
-- [See example 2](./example-2-showing-changing-source.html)
+- [See example 2](example-2-change-event-handlers.html)
 
 Methods exist to get and set the content of the editor, which is always in HTML format.
 
@@ -173,13 +173,23 @@ Methods exist to get and set the content of the editor, which is always in HTML 
 
 ## Events
 
-- [See example 2](./example-2-showing-changing-source.html)
+- [See example 2](example-2-change-event-handlers.html)
 
 *Before* calling `simpleEditor.attach` you can provide optional event handlers for when the text changes.
 
+You can query Simple Editor for the content at any time, but the actual text is not passed *directly* to handlers for two reasons:
+
+- That's extra overhead when some usages may not need the text
+- It's not known in advance if you want unescaped or raw HTML
+
+### Instant notification on changes
+
+Your handler is called the moment a change occurs.
+Useful for things like showing a 'changed' marker on a browser tab title. 
+
 ``` javascript
 simpleEditor.onchange(() => { sourceDiv.innerHTML = simpleEditor.getContent(); });
-simpleEditor.onChange(() => console.log('Changed!'));
+simpleEditor.onchange(() => console.log('Changed!'));
 simpleEditor.attach('my-editor');
 ```
 
@@ -187,10 +197,18 @@ This example adds two handlers for when the text changes:
 - The first sets an element (already captured as `sourceDiv`) to always show the latest escaped (safe) HTML
 - The second is a simple message in the console to say something has changed
 
-Actual text is not passed directly to handlers for two reasons:
+### Interval-based notification on changes
 
-- That's extra overhead when some usages may not need the text
-- It's not known in advance if you want unescaped or raw HTML
+Your handler is called at a regular interval, but only if there has been a change since it was last called.
+Useful for things that need to be kept up to date, but for performance reasons doing them once for every change is too much overhead.
+For example, a live word count could be updated just once every 3 seconds and only needs to occur if there have been changes.
+
+``` javascript
+simpleEditor.onchangeInterval(() => { alert('At least one change in the last 10s'); }, 10000);
+simpleEditor.attach('my-editor');
+```
+
+This example sets up an interval handler called every 10 seconds if there have been any changes since the last time it was called.
 
 ## License
 

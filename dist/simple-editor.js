@@ -14,6 +14,9 @@ const simpleEditor = {
     // Any registered handlers to receive changes
     changeHandlers: [],
 
+    // Any registered handlers to receive changes at intervals
+    changeIntervalHandlers: [],
+
     // The editor's container element
     container: null,
 
@@ -212,6 +215,14 @@ const simpleEditor = {
             return newFontList;
         }
 
+        // Function for interval-based actions
+        function intervalTick(intervalIndex) {
+            if (simpleEditor.changeIntervalHandlers[intervalIndex].isDirty) {
+                simpleEditor.changeIntervalHandlers[intervalIndex].isDirty = false;
+                simpleEditor.changeIntervalHandlers[intervalIndex].handler();
+            }
+        }
+
         // Set the list of fonts
         const fonts = removeUnavailableFonts(simpleEditor.fonts);
 
@@ -342,21 +353,37 @@ const simpleEditor = {
         });
 
         // If there are change handlers, advise them when there are content changes
+        // Also update the dirty flag for interval-based change events
         if (simpleEditor.changeHandlers.length > 0) {
             simpleEditor.editor.addEventListener('input', () => {
+                for (let i=0; i<simpleEditor.changeIntervalHandlers.length; i++) {
+                    simpleEditor.changeIntervalHandlers[i].isDirty = true;
+                }
                 simpleEditor.changeHandlers.forEach((handler) => handler());
             });
         }
+
+        // Set up the timer-based events
+        for (let i=0; i<simpleEditor.changeIntervalHandlers.length; i++) {
+            simpleEditor.changeIntervalHandlers[i].isDirty = false;
+            setInterval(
+                () => { intervalTick(i); },
+                simpleEditor.changeIntervalHandlers[i].milliseconds);
+        }
     },
 
-    // Register a change handler (camelcase)
-    onChange: function (handler) {
-        simpleEditor.changeHandlers.push(handler);
-    },
-
-    // Register a change handler (lowercase)
+    // Register a change handler
     onchange: function (handler) {
         simpleEditor.changeHandlers.push(handler);
+    },
+
+    // Register an interval change handler
+    onchangeInterval: function (handler, milliseconds) {
+        simpleEditor.changeIntervalHandlers.push({
+            handler,
+            milliseconds,
+            isDirty: false
+        });
     },
 
     // Set the HTML content
