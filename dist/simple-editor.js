@@ -17,6 +17,9 @@ const simpleEditor = {
     // Any registered handlers to receive changes at intervals
     changeIntervalHandlers: [],
 
+    // Any registered handlers to receive changes when the editor is idle
+    changeIdleHandlers: [],
+
     // The editor's container element
     container: null,
 
@@ -353,36 +356,72 @@ const simpleEditor = {
         });
 
         // If there are change handlers, advise them when there are content changes
-        // Also update the dirty flag for interval-based change events
         if (simpleEditor.changeHandlers.length > 0) {
             simpleEditor.editor.addEventListener('input', () => {
-                for (let i=0; i<simpleEditor.changeIntervalHandlers.length; i++) {
+                // Update the dirty flag for interval-based change events
+                for (let i = 0; i < simpleEditor.changeIntervalHandlers.length; i++) {
                     simpleEditor.changeIntervalHandlers[i].isDirty = true;
                 }
+                // Advise each change event handler
                 simpleEditor.changeHandlers.forEach((handler) => handler());
             });
         }
 
-        // Set up the timer-based events
-        for (let i=0; i<simpleEditor.changeIntervalHandlers.length; i++) {
+        // Set up the timer-based interval events
+        for (let i = 0; i < simpleEditor.changeIntervalHandlers.length; i++) {
             simpleEditor.changeIntervalHandlers[i].isDirty = false;
             setInterval(
                 () => { intervalTick(i); },
                 simpleEditor.changeIntervalHandlers[i].milliseconds);
         }
+
+        // Set up the idle events
+        // Uses its own change handler in case there are no standard ones registered
+        for (let i = 0; i < simpleEditor.changeIdleHandlers.length; i++) {
+            simpleEditor.editor.addEventListener('input', () => {
+                // Restart any idle timers
+                for (let i = 0; i < simpleEditor.changeIdleHandlers.length; i++) {
+                    if (simpleEditor.changeIdleHandlers[i].timer != null) {
+                        clearTimeout(simpleEditor.changeIdleHandlers[i].timer);
+                        simpleEditor.changeIdleHandlers[i].timer = null;
+                    }
+                    simpleEditor.changeIdleHandlers[i].timer = setTimeout(
+                        simpleEditor.changeIdleHandlers[i].handler,
+                        simpleEditor.changeIdleHandlers[i].milliseconds);
+                };
+            });
+        }
     },
 
     // Register a change handler
     onchange: function (handler) {
+        if (simpleEditor.isAttached) {
+            throw new Error("Cannot register a change handler after Simple Editor is attached.");
+        }
         simpleEditor.changeHandlers.push(handler);
     },
 
     // Register an interval change handler
     onchangeInterval: function (handler, milliseconds) {
+        if (simpleEditor.isAttached) {
+            throw new Error("Cannot register an interval handler after Simple Editor is attached.");
+        }
         simpleEditor.changeIntervalHandlers.push({
             handler,
             milliseconds,
             isDirty: false
+        });
+    },
+
+    // Register an idle change handler
+    onchangeIdle: function (handler, milliseconds) {
+        if (simpleEditor.isAttached) {
+            throw new Error("Cannot register an idle handler after Simple Editor is attached.");
+        }
+        simpleEditor.changeIdleHandlers.push({
+            handler,
+            milliseconds,
+            timer: null
         });
     },
 
@@ -395,7 +434,7 @@ const simpleEditor = {
         }
 
         // Only set the content if it has a string value
-        if (typeof(innerHTML) === 'string') {
+        if (typeof (innerHTML) === 'string') {
             simpleEditor.editor.innerHTML = innerHTML.replace(/\n/g, "<br>");
             simpleEditor.content = simpleEditor.editor.innerHTML;
 

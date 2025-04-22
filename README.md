@@ -1,4 +1,4 @@
-# Simple Editor v1.2.0
+# Simple Editor v1.3.0
 
 A rich text client side web editor in vanilla JavaScript and CSS.
 
@@ -18,6 +18,7 @@ A rich text client side web editor in vanilla JavaScript and CSS.
 - [Events](#events)
   - [On change](#instant-notification-on-changes)
   - [At intervals](#interval-based-notification-on-changes)
+  - [When idle](#notification-when-idle-for-a-given-time)
 - [License](#license)
 
 ## Features
@@ -31,9 +32,10 @@ A rich text client side web editor in vanilla JavaScript and CSS.
 - Font selection and size
   - Default font choices can be overridden
   - Unavailable fonts silently suppressed
-- Optional change event callback
+- *Intelligent* optional change event callbacks
   - Instantly when there are changes (e.g., for your own 'changed' flag)
   - At an interval if there have been changes (e.g., to trigger a word count update)
+  - After a specified period of inactivity (e.g., autosave after 2 minutes)
 - Get content as either escaped or raw HTML
 - Options to select which features are shown
 
@@ -49,13 +51,16 @@ Handwritten. No AI.
 
 There are five example HTML files in the repo:
 
-- [Example 1](./example-1.html) is a simple out-of-the-box experience
-- [Example 2](./example-2-change-event-handlers.html) has change event handlers showing both instant and interval-based activity
-- [Example 3](./example-3-some-buttons-hidden.html) shows how to pass options to hide chosen editor features
-- [Example 4](./example-4-custom-fonts.html) shows how to override the default list of fonts
-- [Example 5](./example-5-no-fixed-width.html) shows the behaviour without a fixed width editor
+- [Example 1](./examples/example-1.html) is a simple out-of-the-box experience
+- [Example 2](./examples/example-2-change-event-handlers.html) has change event handlers showing both instant and interval-based activity
+- [Example 3](./examples/example-3-some-buttons-hidden.html) shows how to pass options to hide chosen editor features
+- [Example 4](./examples/example-4-custom-fonts.html) shows how to override the default list of fonts
+- [Example 5](./examples/example-5-no-fixed-width.html) shows the behaviour without a fixed width editor
+- [Example 6](./examples/example-6-idle-event-handler.html) has an idle event handler to show action after inactivity
 
 ## Usage
+
+- [See example 1](./examples/example-1.html)
 
 ### Linking in the required JavaScript and CSS
 
@@ -109,7 +114,7 @@ The examples also link to `style.css` but that's not part of the editor and only
 
 ### Changing which features are visible
 
-- [See example 3](./example-3-some-buttons-hidden.html)
+- [See example 3](./examples/example-3-some-buttons-hidden.html)
 
 The call to `simpleEditor.attach` can also suppress specific features.
 For example you may support bold, italics, and underline, but nothing else.
@@ -146,7 +151,7 @@ Here's the list of options supported, taken from `simpleEditor.defaultOptions`:
 
 ### Changing which fonts are available
 
-- [See example 4](./example-4-custom-fonts.html)
+- [See example 4](./examples/example-4-custom-fonts.html)
 - For the full list of default fonts look at the `fonts` array in [`simple-editor.js`](./dist/simple-editor.js)
 
 *Before* calling `simpleEditor.attach` you can set the list of fonts the user can choose from:
@@ -160,7 +165,7 @@ simpleEditor.attach('my-editor');
 
 ## Content
 
-- [See example 2](example-2-change-event-handlers.html)
+- [See example 2](./examples/example-2-change-event-handlers.html)
 
 Methods exist to get and set the content of the editor, which is always in HTML format.
 
@@ -173,9 +178,10 @@ Methods exist to get and set the content of the editor, which is always in HTML 
 
 ## Events
 
-- [See example 2](example-2-change-event-handlers.html)
-
 *Before* calling `simpleEditor.attach` you can provide optional event handlers for when the text changes.
+
+For each type of event you can register as many handlers as you need.
+Each is called according to its own specified timings.
 
 You can query Simple Editor for the content at any time, but the actual text is not passed *directly* to handlers for two reasons:
 
@@ -183,6 +189,8 @@ You can query Simple Editor for the content at any time, but the actual text is 
 - It's not known in advance if you want unescaped or raw HTML
 
 ### Instant notification on changes
+
+- [See example 2](./examples/example-2-change-event-handlers.html)
 
 Your handler is called the moment a change occurs.
 Useful for things like showing a 'changed' marker on a browser tab title. 
@@ -199,6 +207,8 @@ This example adds two handlers for when the text changes:
 
 ### Interval-based notification on changes
 
+- [See example 2](./examples/example-2-change-event-handlers.html)
+
 Your handler is called at a regular interval, but only if there has been a change since it was last called.
 Useful for things that need to be kept up to date, but for performance reasons doing them once for every change is too much overhead.
 For example, a live word count could be updated just once every 3 seconds and only needs to occur if there have been changes.
@@ -209,6 +219,21 @@ simpleEditor.attach('my-editor');
 ```
 
 This example sets up an interval handler called every 10 seconds if there have been any changes since the last time it was called.
+
+### Notification when idle for a given time
+
+- [See example 6](./examples/example-6-idle-event-handler.html)
+
+Your handler is only called when nothing has changed for a specified time.
+Useful for things that only need to happen when the text is stable, like an autosave every couple of minutes.
+
+``` javascript
+simpleEditor.onchangeIdle(() => { alert('Changed, but now idle for 3s'); }, 3000);
+simpleEditor.attach('my-editor');
+```
+
+This example sets up an idle handler to show an alert if there have been no changes in the last 3 seconds.
+In reality you'd likely wait longer and do something more productive!
 
 ## License
 
