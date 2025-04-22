@@ -177,47 +177,6 @@ const simpleEditor = {
             formatText('fontSize', false, fontSize);
         }
 
-        // Function to remove fonts that should not be shown
-        function removeUnavailableFonts(fonts) {
-            const parent = simpleEditor.container;
-            const newFontList = [];
-
-            // Prepare a container to do font measurements in
-            // Include a long piece of large sample text
-            const container = document.createElement('span');
-            container.style.cssText = 'position:absolute;top:-1000px;width:auto;font-size:10em;';
-            container.innerHTML = 'm'.repeat(200);
-
-            // Compute the width of the sample text for the given font
-            function calculateWidth(fontName) {
-                container.style.fontFamily = fontName;
-                parent.appendChild(container);
-                const width = container.clientWidth;
-                parent.removeChild(container);
-                return width;
-            }
-
-            // Get the widths of the fallback fonts for when the font isn't available
-            const w1 = calculateWidth('serif');
-            const w2 = calculateWidth('sans-serif');
-            const w3 = calculateWidth('monospace');
-
-            // Include all the fonts whose width doesn't match one of the fallbacks
-            // Also retain the dropdown title plus any included fallback
-            fonts.forEach(f => {
-                const font = f.toLowerCase();
-                if (font !== 'serif' && font !== 'sans-serif' && font !== 'monospace') {
-                    if (calculateWidth("'" + font + "',serif") === w1) return;
-                    if (calculateWidth("'" + font + "',sans-serif") === w2) return;
-                    if (calculateWidth("'" + font + "',monospace") === w3) return;
-                }
-                newFontList.push(f);
-            });
-
-            // Now only contains available fonts
-            return newFontList;
-        }
-
         // Function for interval-based actions
         function intervalTick(intervalIndex) {
             if (simpleEditor.changeIntervalHandlers[intervalIndex].isDirty) {
@@ -227,7 +186,7 @@ const simpleEditor = {
         }
 
         // Set the list of fonts
-        const fonts = removeUnavailableFonts(simpleEditor.fonts);
+        const fonts = simpleEditor.fonts;
 
         // Add the toolbar buttons
         // This *could* be merged in with the 'buttons' array below, but it's

@@ -1,4 +1,4 @@
-# Simple Editor v1.3.0
+# Simple Editor v1.4.0
 
 A rich text client side web editor in vanilla JavaScript and CSS.
 
@@ -31,7 +31,6 @@ A rich text client side web editor in vanilla JavaScript and CSS.
 - Blockquotes
 - Font selection and size
   - Default font choices can be overridden
-  - Unavailable fonts silently suppressed
 - *Intelligent* optional change event callbacks
   - Instantly when there are changes (e.g., for your own 'changed' flag)
   - At an interval if there have been changes (e.g., to trigger a word count update)
@@ -160,8 +159,6 @@ Here's the list of options supported, taken from `simpleEditor.defaultOptions`:
 simpleEditor.fonts = ['Arial', 'Sans-Serif', 'Tahoma', 'Verdana'];
 simpleEditor.attach('my-editor');
 ```
-
-*Fonts are checked for at runtime, and if the user's device doesn't have a particular font available it is not included as an option.*
 
 ## Content
 
